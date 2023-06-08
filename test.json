@@ -1,0 +1,23 @@
+{"users": [
+{
+  "localId": "DdUWgtezBkYon6kciCxSH1gY3JN2",
+  "email": "admin+1@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "NfWpfZYTnw7uXaKoDX0BnnZibhiAg3qfOasFmDWm9rWvbSoNVIpJUVSsWs7wkpervv97wK1gLTSxzuByxJfuGQ==",
+  "salt": "o1n1bcb71SUaqg==",
+  "displayName": "admin2",
+  "lastSignedInAt": "1686212598275",
+  "createdAt": "1686210636940",
+  "providerUserInfo": []
+},
+{
+  "localId": "iZmB8ksn3yVjZp0kVGWPYLZOgQC3",
+  "email": "ttt+1@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "QEZxtN4U5re6/SSYTW0oy8C//B3XugVSb0fTs8wmy/G2wJY9xFvwraPRwOo3HKGFsWgtgjOHZIQR5mVFfRc4cA==",
+  "salt": "PwSk9CqNrBRBFg==",
+  "displayName": "同級生1222",
+  "lastSignedInAt": "1686206933639",
+  "createdAt": "1686204650184",
+  "providerUserInfo": []
+}]}

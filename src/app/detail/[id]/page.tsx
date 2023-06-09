@@ -2,38 +2,42 @@
 import { FormEvent, useState } from 'react';
 import styles from '../../page.module.css'
 import {initializeFirebaseApp} from '../../../lib/firebase/firebase'
-import { useFirebaseContext, SET_USER, SET_FIREBASE_APP, SET_FIREBASE_AUTH, SET_LOADING } from '@/context/firebase.context';
+import { useFirebaseContext, SET_MEMBER
+ } from '@/context/firebase.context';
 import { getFirestore } from 'firebase/firestore';
 import { FirebaseApp } from 'firebase/app';
 import Link from 'next/link';
-import { updateDocument, COLLECTION_NAME, Member } from '@/lib/firebase/firestore';
+import { updateDocument, getCollection, Member, COLLECTION_NAME } from '@/lib/firebase/firestore';
 
 class DetailParam {
   id: string = ''
 }
 
-export default function Detail(params:DetailParam) {
+export default function Detail(props:any) {
   const { state, dispatch } = useFirebaseContext()
 
   const user = state.user
+  const params:DetailParam = props.params;
   if(!user || user.uid != params.id){
     return (
       <main className={`${styles.main} row`}>
         <div className="col">ログインしていないか、このページを参照できないユーザーでログインしています。</div>
+        <Link href="/signin">ログインはこちら</Link>
       </main>
     )
   }
-  const thisMember = state.member.map((m:Member) => {
+  let isParticipation:boolean = false
+  state.member.map((m:Member) => {
     if(m.id === params.id){
-      return m
+      isParticipation = m.isParticipation
     }
   })
 
   /** 選択中のラジオボタンvalue */
-  const [selected, setSelected] = useState(thisMember.isParticipation);
+  const [selected, setSelected] = useState(isParticipation);
   /** ラジオボタン切り替えイベント */
-  const changeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelected(event.target.value);
+  const changeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelected(e.target.value === 'true');
   }
 
   const radioButtons = [
@@ -47,10 +51,31 @@ export default function Detail(params:DetailParam) {
     }
   ]
 
-  const submit = async (e : FormEvent<HTMLFormElement>, id:string) => {
+  const submit = async () => {
+    alert("clicked")
     const firebase:FirebaseApp = state.firebase || initializeFirebaseApp();
     const db = state.firestore || getFirestore(firebase);
-    await updateDocument(db, COLLECTION_NAME.MEMBERS, id, {isParticipation: selected})
+    await updateDocument(db, COLLECTION_NAME.MEMBERS, params.id, {isParticipation: selected, answered: true})
+
+    // ここで一覧取得も更新しないとダメ
+    const getMemberList = async () => {
+      getCollection(db, COLLECTION_NAME.MEMBERS).then((res) => {
+        let list = []
+        if(res){
+          for(const m of res){
+            list.push(m)
+          } 
+          // sort
+          list.sort((a, b) => {
+            return a.name < b.name ? -1 : 1;
+          });
+        }
+        
+        dispatch({type: SET_MEMBER, value: list})
+      })
+    }
+    getMemberList()
+
   }
 
 
@@ -59,9 +84,9 @@ export default function Detail(params:DetailParam) {
   return (
     <main className={`${styles.main} row`}>
       <div className="col">
-      <form onSubmit={(e) => submit(e, thisMember.id)}>
+      <form>
         <div className="mb-3">
-          <p>名前：{thisMember.name}</p>
+          <p>名前：{user.displayName}</p>
         </div>
         <div className="mb-3">
             {radioButtons.map(radio => {
@@ -69,7 +94,7 @@ export default function Detail(params:DetailParam) {
                     <div className="col-4">
                         {/* checked属性に式を定義する */}
                         <input className="form-check-input" type="radio" name="sweets" 
-                            value={radio.value} checked={radio.value === selected} onChange={changeValue}/>
+                            value={radio.value} checked={radio.value === new Boolean(selected).toString()} onChange={changeValue}/>
                         <label className="form-check-label">
                             <span className="fs-6">{radio.label}</span>
                         </label>
@@ -77,7 +102,7 @@ export default function Detail(params:DetailParam) {
                 )
             })}
         </div>
-        <button type="submit" className="btn btn-primary" >更新する</button>
+        <button type="button" className="btn btn-primary" onClick={submit}>更新する</button>
       </form>
       <div className="mt-5 row">
             <div className="col-2 p-1">

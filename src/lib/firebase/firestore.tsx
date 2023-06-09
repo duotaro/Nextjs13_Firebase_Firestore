@@ -1,4 +1,4 @@
-import { doc, collection, setDoc, updateDoc, addDoc, getDoc, getDocs } from "firebase/firestore";
+import { doc, collection, query, setDoc, orderBy, updateDoc, addDoc, getDoc, getDocs } from "firebase/firestore";
 import { popup, errorMessage} from "@/utils/utils";
 
 /**
@@ -72,8 +72,23 @@ export const getCollection = async (db:any, collectionName:string) => {
     if(!notInitFirestore(db)){
         return;
     }
-    const querySnapshot = await getDocs(collection(db, collectionName));
-    return querySnapshot
+    const q = query(collection(db, collectionName));
+    const querySnapshot = await getDocs(q);
+    let res:Array<Member> = []
+    querySnapshot?.forEach((item) => {
+          const data = item.data()
+          const member:Member = {
+            id: data.id,
+            name: data.name,
+            photoURL: '',
+            isParticipation: data.isParticipation,
+            answered: data.answered
+          }
+
+          res.push(member)
+    })
+
+    return res
 
 }
 

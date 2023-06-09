@@ -4,7 +4,7 @@ export class FirebaseAuth {
     "emailVerified":boolean = false
     "displayName": string = ''
     "passwordHash":string = ''
-    "salt":string = "PwSk9CqNrBRBFg=="
+    //"salt":string = "PwSk9CqNrBRBFg=="
     "lastSignedInAt":string =  "1686206933639"
     "createdAt":string =  "1686206933639"
     "providerUserInfo": []
@@ -12,10 +12,24 @@ export class FirebaseAuth {
 
   
 const sha256 = async (text:string) => {
-    const uint8  = new TextEncoder().encode(text)
-    const digest = await crypto.subtle.digest('SHA-256', uint8)
-    return Array.from(new Uint8Array(digest)).map(v => v.toString(16).padStart(2,'0')).join('')
-  }
+    // const uint8  = new TextEncoder().encode(text)
+    // const digest = await crypto.subtle.digest('SHA-256', uint8)
+    // return Array.from(new Uint8Array(digest)).map(v => v.toString(16).padStart(2,'0')).join('')
+
+
+    // var hash = crypto.HmacSHA256("test1234", "KEmHEG1L9Y/2kRXNf/zIMfwf4NKIXX70qqjjIgCx3qc=");
+    // var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+    // return hashInBase64;
+
+    const crypto = require('crypto')
+
+    const secretKey = 'KEmHEG1L9Y/2kRXNf/zIMfwf4NKIXX70qqjjIgCx3qc='
+
+    const hmac = crypto.createHmac('sha256', secretKey)
+    hmac.update(text)
+
+    return hmac.digest('hex')
+}
 
 export const csvToArray = async () => {
     // CSVファイルを取得
@@ -42,13 +56,13 @@ export const csvToArray = async () => {
     for (let i = 1; i < lines.length; ++i) {
         let cells = lines[i].split(",");
         const passwordHas = await sha256(cells[2])
+        //const passwordHas = cells[2]
         let authItem:FirebaseAuth  = {
           localId: cells[2],
           email: `dousoukai+${cells[0]}@gmail.com`,
           emailVerified: false,
           displayName: cells[1],
-          passwordHash: passwordHas,
-          salt: "PwSk9CqNrBRBFg==",
+          passwordHash: btoa(passwordHas),
           lastSignedInAt: "1686206933639",
           createdAt: "1686204650184",
           providerUserInfo: []

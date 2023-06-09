@@ -91,6 +91,10 @@ export default function Signin() {
             <div className="col-2 p-1">
               <Link href="/signup">新規登録はこちら</Link>
             </div>
+
+            <div className="col-2 p-1">
+              <Link href="/list">同窓生一覧</Link>
+            </div>
         </div>
       </div>
     </main>

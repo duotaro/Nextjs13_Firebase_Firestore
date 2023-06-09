@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import React, { Dispatch, createContext, useReducer, useContext, useEffect } from "react";
 import { initializeFirebaseApp } from '../lib/firebase/firebase'
 import { getFirestore } from "firebase/firestore";
@@ -25,7 +25,7 @@ const initialState: StateType = {
   firebaseAuth: null,
   firestore: null,
   user: null,
-  member: null,
+  member: [],
   loading : false
 };
 
@@ -92,6 +92,35 @@ export const FirebaseContextProvider = ({
   return (
     <>
     <FirebaseContext.Provider value={{ state, dispatch }}>
+    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+          <div className="container-fluid">
+            <ul className="nav">
+              <li className="nav-item">
+                <Link className="nav-link active" aria-current="page" href="#">Top</Link>
+              </li>
+              {!state.user && 
+              <li className="nav-item">
+                <Link className="nav-link" href="/signin">Signin</Link>
+              </li>
+              }
+              {!state.user && 
+              <li className="nav-item">
+                <Link className="nav-link" href="/signup">Signup</Link>
+              </li>
+              }
+              {state.user && 
+              <li className="nav-item">
+                <Link className="nav-link" href="/list">一覧</Link>
+              </li>
+              }
+              {state.user && 
+              <li className="nav-item">
+                <Link className="nav-link" href={`/detail/${state.user.uid}`}>投票</Link>
+              </li>
+              }
+            </ul>
+          </div>
+        </nav>
       {children}
     </FirebaseContext.Provider>
     {state.loading && <Loading></Loading>}
